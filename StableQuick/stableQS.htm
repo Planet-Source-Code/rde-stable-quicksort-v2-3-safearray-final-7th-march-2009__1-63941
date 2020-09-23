@@ -1,0 +1,268 @@
+
+<BLOCKQUOTE>
+<FONT SIZE="+1">
+<br />
+<H2 ALIGN="center">The Avalanche</H2>
+
+<p>This is a non-recursive quicksort based algorithm that has been 
+written from the ground up as a stable alternative to the blindingly fast 
+quicksort.</p>
+
+<p>It is not quite as fast as the outright fastest non-stable quicksort, but 
+is still very fast as it uses buffers and CopyMemory and is beaten by none of 
+my other string sorting algorithms except my fastest non-stable quicksort.</p>
+
+<p>A standard quicksort only moves items that need swapping, while this stable 
+algorithm manipulates all items on every iteration to keep them all in relative 
+positions to one another. This algorithm I have dubbed the Avalanche&#169;.</p>
+
+<p>The Avalanche algorithm has the following features:</p>
+
+ - It can handle sorting arrays of millions of string items.<br />
+ - It can handle sorting in ascending and descending order.<br />
+ - It can handle case-sensitive and case-insensitive criteria.<br />
+ - It can handle zero or higher based arrays.<br />
+ - It can handle negative lb and positive ub.<br />
+ - It can handle negative lb and zero or negative ub.<br />
+ - It can sort sub-sets of the array data.<br />
+
+<p>It is also important to note that this algorithm does not suffer 
+at all from the traditional quicksort nemesis. It does not guard 
+against pre-sorted data or many repeated items yet is very fast 
+at sorting these data states!</p>
+
+<H3 ALIGN="center">Avalanche v2</H3>
+
+<p>In version two a runner section has been added to handle a very hard job 
+for a stable sorter - reverse pretty sorting. Reverse pretty sorting is 
+case-insensitive sorting of data that has been pre-sorted case-sensitively 
+in reverse order.</p>
+
+<p>Case-insensitive sorting is much more demanding than 
+case-sensitive/binary compare sorting, particularly for a stable 
+sorter that must keep all items in relative positions to one another.</p>
+
+<p>It utilises a runner technique to boost this very demanding operation - 
+down from 2.0 seconds to 1.5 seconds on 100,000 items on my 866 MHz P3.</p>
+
+<p>Adding runners has also boosted same-direction pretty sorting operations.</p>
+
+<H3 ALIGN="center">Avalanche v2.1</H3>
+
+<p>Version 2.1 of the Avalanche algorithm has smarts added to the runners 
+for maximum performance on all data states! If performing a refresh or 
+pretty sorting operation the code can identify this state and the runners 
+are turned on automatically, while they are off for operations that do not 
+benifit from this extra processing.</p>
+
+<p>Because all items are re-positioned based on the current value the 
+executing code identifies when the avalanche process is producing a zero 
+count buffer one way and so is moving all items the other way - shifting 
+no items up/down in relation to the current item - indicating that the 
+data is in a pre-sorted state.</p>
+
+<p>On each iteration a test of the buffer counts can identify when it is re-sorting 
+or reverse-sorting, as well as producing distinctive indicators on reverse-pretty 
+and same-direction pretty sorting operations.</p>
+
+<p>Note that stable reverse-sorting operations are quite different 
+to a non-stable inversion style reverse operation.</p>
+
+<H3 ALIGN="center">Avalanche v2.2</H3>
+
+<p>This version identifies sub-sets of pre-sorted data and delegates it to 
+a built-in insert/binary hybrid algorithm dubbed the Twister&#169;.</p>
+
+<p>This delegation is the sole reason for the speed boost on all operations 
+over version 2.1, and also the reason for the incredibly fast refresh 
+sorting performance - it can refresh-sort 3,248,230 pre-sorted strings 
+in around 2 and a half seconds on my 866MHz P3.</p>
+
+<p>This algorithm is one of my outright fastest at these operations, 
+beaten only by my absolute fastest non-stable sorters, and <i><FONT COLOR="#3300ff">is the 
+outright fastest</FONT></i> on same-direction pretty sorting operations!</p>
+
+<H3 ALIGN="center">Avalanche v2.25</H3>
+
+<p>This interim version added safe addition and subtraction of 
+unsigned long integers. This guarantees valid arithmetic operations 
+on memory address pointers which are used extensively by the runner 
+sections of code.</p>
+
+<p>This change imposed a slight performance degradation on all operations.</p>
+
+<H3 ALIGN="center">Avalanche v2.3</H3>
+
+<p>The latest version of this algorithm employs a SAFEARRAY substitution 
+technique to trick VB into thinking the four-byte string pointers in 
+the string array are just VB longs in a native VB long array.</p>
+
+<p>The technique simply uses CopyMemory to point a VB long array (defined 
+in the module) at the first of the string pointers in memory, and sets 
+its lower-bound and item count to match (as if it had been redimmed).</p>
+
+<p>This allows us to treat the string pointers as if they were simply 
+four-byte long values in a long array and can be swapped around as 
+needed without touching the actual strings that are pointed to.</p>
+
+<p>Reading and assigning to a VB long array is lightning fast, and proves 
+to be considerably faster when copying only one item than the previous method 
+of copying the string pointers using CopyMemory.</p>
+
+<H3 ALIGN="center">Indexed Version</H3>
+
+<p>This version receives a dynamic long array that holds references 
+to the string arrays indices. This is known as an indexed sort. 
+No changes are made to the source string array.</p>
+
+<p>The index array is automatically initialized if it is passed erased 
+or uninitialized. The index array can be passed again for sorting without 
+erasing it.</p>
+
+<p>This allows the index array to be passed on to other sorting 
+processes to be further manipulated, which is exploited in the included 
+PrettySort routine.</p>
+
+<p>After a sort procedure is run the long array is ready as a sorted 
+index (lookup table) to the string array items, 
+so&#160;<b><code>&#160;strA(idxA(lo))&#160;</code></b>&#160;returns 
+the lo item in the string array whose index 
+may be anywhere in the string array.</p>
+
+<p><b>Usage Details:</b> The index array can be redimmed to match the source string array 
+boundaries or it can be erased or left uninitialized before sorting 
+a string array for the first time. However, if you modify string items 
+and re-sort <i>you should not redim or erase the index array</i> which will 
+take advantage of the fast refresh sorting performance. This also allows 
+the index array to be passed on to other sorting processes to be further manipulated.</p>
+
+<p>Even when using redim with the preserve keyword and adding more items to 
+the string array <i>you can pass the index array unchanged</i> and the new items 
+will be sorted into the previously sorted array. The index array will automatically 
+return with boundaries matching the string array boundaries.</p>
+
+<p>Only when you reload the string array items with new array boundaries should you
+erase the index array for the first sorting operation. Also, if you redim the 
+source string array to smaller boundaries using the preserve keyword <i>you should 
+erase the index array</i> before sorting the new smaller data set for the first time.</p>
+
+<H3 ALIGN="center">Performance</H3>
+
+<p>These results are the fastest times, in seconds, produced sorting 
+99,996 string items for each operation, tested on my 866MHz P3.</p>
+
+<p align="center">
+<table  width="90%" border="1" cellspacing="0" cellpadding="4">
+	<tr>
+		<td align="center"><b>Data State</b></td>
+		<td align="center"><b>Avalanche v2<br />Stable</b></td>
+		<td align="center"><b>Avalanche v2<br />Stable Indexed</b></td>
+		<td align="center"><b>Quicksort<br />Non-Stable</b></td>
+		<td align="center"><b>Heapsort<br />Non-Stable</b></td>
+		<td align="center"><b>Shellsort<br />Non-Stable</b></td>
+	</tr>
+	<tr>
+		<td>Unsorted</td><td align="center"><CODE>0.5592</CODE></td><td align="center"><CODE>0.6612</CODE></td><td align="center"><CODE>0.4876</CODE></td><td align="center"><CODE>0.7897</CODE></td><td align="center"><CODE>1.1281</CODE></td>
+	</tr>
+	<tr>
+		<td>Pre-sorted</td><td align="center"><CODE><FONT COLOR="#3300ff">0.0939</FONT></CODE></td><td align="center"><CODE><FONT COLOR="#3300ff">0.1024</FONT></CODE></td><td align="center"><CODE>0.3695</CODE></td><td align="center"><CODE>0.6164</CODE></td><td align="center"><CODE>0.4471</CODE></td>
+	</tr>
+	<tr>
+		<td>Reverse-sorted</td><td align="center"><CODE>0.4357</CODE></td><td align="center"><CODE>0.4603</CODE></td><td align="center"><CODE>0.3664</CODE></td><td align="center"><CODE>0.6233</CODE></td><td align="center"><CODE>0.5726</CODE></td>
+	</tr>
+	<tr>
+		<td>Pretty-sorted</td><td align="center"><CODE><FONT COLOR="#3300ff">1.2081</FONT></CODE></td><td align="center"><CODE><FONT COLOR="#3300ff">1.2521</FONT></CODE></td><td align="center"><CODE>1.3326</CODE></td><td align="center"><CODE>2.0978</CODE></td><td align="center"><CODE>1.6709</CODE></td>
+	</tr>
+	<tr>
+		<td>Reverse-pretty</td><td align="center"><CODE>1.4447</CODE></td><td align="center"><CODE>1.4924</CODE></td><td align="center"><CODE>1.3017</CODE></td><td align="center"><CODE>1.9900</CODE></td><td align="center"><CODE>1.6471</CODE></td>
+	</tr>
+</table>
+
+<p>This stable algorithm is truely very fast at all sorting operations!</p>
+
+<H3 ALIGN="center">Stability</H3> 
+
+<P>
+ This very unique sorting algorithm is stable; which is the preserving of the 
+original order of items that equate to equal during a comparison.
+</P>
+
+<P>
+ This issue usually applies to sorting objects or data types that contain 
+multiple members where only one or a selected few of the members are compared 
+during the sorting procedure. It is considered very inappropriate to shuffle 
+the order of items that equate to equal for that particular sort criteria.
+</P>
+
+<P>
+ This issue in not completely irrelevant for strings. For sorting with 
+case-insensitive comparisons it can make a difference.
+</P>
+
+<P>
+ For example, comparisons with case-insensitive criteria on items that are 
+ordered lowercase before uppercase will remain in this state within their 
+sorted groups:
+</P>
+
+<p align="center">
+<table  width="90%" border="1" cellspacing="0" cellpadding="4">
+	<tr>
+		<td align="center"><b>before sorting</b></td>
+		<td align="center"><b>case-sensitive<br /> sorting</b></td>
+		<td align="center"><b>case-insensitive<br /> stable sorting</b></td>
+		<td align="center"><b>case-insensitive<br /> unstable sorting</b></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>aaaaaa</CODE></td><td align="center"><CODE>AAAAAA</CODE></td><td align="center"><CODE>aaaaaa</CODE></td><td align="center"><CODE>aaaaaa</CODE></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>bbbbbb</CODE></td><td align="center"><CODE>AAAaaa</CODE></td><td align="center"><CODE>AAAaaa</CODE></td><td align="center"><CODE>AAAAAA</CODE></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>cccccc</CODE></td><td align="center"><CODE>BBBBBB</CODE></td><td align="center"><CODE>AAAAAA</CODE></td><td align="center"><CODE>AAAaaa</CODE></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>AAAaaa</CODE></td><td align="center"><CODE>BBBbbb</CODE></td><td align="center"><CODE>bbbbbb</CODE></td><td align="center"><CODE>bbbbbb</CODE></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>BBBbbb</CODE></td><td align="center"><CODE>CCCCCC</CODE></td><td align="center"><CODE>BBBbbb</CODE></td><td align="center"><CODE>BBBbbb</CODE></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>CCCccc</CODE></td><td align="center"><CODE>CCCccc</CODE></td><td align="center"><CODE>BBBBBB</CODE></td><td align="center"><CODE>BBBBBB</CODE></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>AAAAAA</CODE></td><td align="center"><CODE>aaaaaa</CODE></td><td align="center"><CODE>cccccc</CODE></td><td align="center"><CODE>CCCccc</CODE></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>BBBBBB</CODE></td><td align="center"><CODE>bbbbbb</CODE></td><td align="center"><CODE>CCCccc</CODE></td><td align="center"><CODE>cccccc</CODE></td>
+	</tr>
+	<tr>
+		<td align="center"><CODE>CCCCCC</CODE></td><td align="center"><CODE>cccccc</CODE></td><td align="center"><CODE>CCCCCC</CODE></td><td align="center"><CODE>CCCCCC</CODE></td>
+	</tr>
+</table>
+</FONT><CODE>Note: the unstable results shown are real results of a shellsort operation.</CODE><FONT SIZE="+1">
+</p>
+
+<P>
+ Not only is this issue relevant for case-insensitive string sorting, but for any array sorting algorithm that can handle, or be modified to handle, other data types.
+</P>
+
+ <H3 ALIGN="center">Free Usage</H3>
+
+<p>As usual, you are free to use any part or all of this code even for 
+commercial purposes in any way you wish under the one condition that no 
+copyright notice is moved or removed from where it is.</p>
+
+<P>
+Happy coding :)
+</P>
+<P ALIGN="center">
+...
+</P>
+
+</FONT>
+</BLOCKQUOTE>
+
+
+

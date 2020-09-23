@@ -1,0 +1,16 @@
+BinaryDigits.txt
+BOOLE.TXT
+BINARYDIGITS.TXT
+QUOTES.TXT
+Boole.txt
+ConcatenatingHelpFiles.txt
+registrybasics.txt
+concatenatinghelpfiles.txt
+quotes.txt
+RegistryBasics.txt
+binarydigits.txt
+boole.txt
+Quotes.txt
+REG ANTI-MERGE.TXT
+CONCATENATINGHELPFILES.TXT
+Reg Anti-Merge.txt
